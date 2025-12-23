@@ -59,6 +59,9 @@ jobs:
       - name: Update DB Host for CI
         run: sed -i 's/DB_HOST=mysql/DB_HOST=127.0.0.1/' .env
 
+      - name: Create Testing Database
+        run: mysql -h127.0.0.1 -uroot -ppassword -e "CREATE DATABASE IF NOT EXISTS testing; GRANT ALL PRIVILEGES ON testing.* TO 'sail'@'%'; FLUSH PRIVILEGES;"
+
       - name: Generate Application Key
         run: php artisan key:generate
 
