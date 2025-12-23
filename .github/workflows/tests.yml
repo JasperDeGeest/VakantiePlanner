@@ -14,6 +14,22 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: laravel
+          MYSQL_USER: sail
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,6 +58,11 @@ jobs:
 
       - name: Generate Application Key
         run: php artisan key:generate
+
+      - name: Update Testing DB
+        run: |
+          php artisan config:clear
+          php artisan migrate --force
 
       - name: Build Assets
         run: npm run build
