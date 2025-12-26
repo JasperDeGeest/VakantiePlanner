@@ -19,47 +19,36 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { formatForPicker } from '@/composables/useDateFormat';
 
 const props = defineProps<{
     open: boolean;
-    event: any | null; // Null if creating, Object if editing
+    event: any | null;
 }>();
 
 const emit = defineEmits(['update:open', 'save']);
 
-// 1. Local State (The "Draft" version of your event)
 const form = ref({
     class: '',
     start: '',
     end: '',
 });
 
-// 2. Helper to format dates for the <input type="datetime-local">
-const formatForPicker = (date: any) => {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16);
-};
-
-// 3. Watch for dialog opening/event prop changes
 watch(
     () => props.open,
     (isOpen) => {
         if (isOpen) {
             if (props.event) {
-                // EDIT MODE: Fill form with existing data
+                // edit
                 form.value = {
                     class: props.event.class,
                     start: formatForPicker(props.event.start),
                     end: formatForPicker(props.event.end),
                 };
             } else {
-                // CREATE MODE: Reset to defaults
+                // create
                 form.value = {
-                    class: 'P',
+                    class: '',
                     start: '',
                     end: '',
                 };
@@ -69,8 +58,8 @@ watch(
 );
 
 const handleSave = () => {
-    // Send the local form data back to the parent
-    // Parent will decide if this is an "Update" (Inertia put/patch) or "Create" (Inertia post)
+    // TODO: Add validation as needed
+    //callback naar de parent
     emit('save', { ...form.value });
     emit('update:open', false);
 };
@@ -79,59 +68,64 @@ const handleSave = () => {
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
         <DialogContent class="sm:max-w-[425px]">
-            <DialogHeader>
-                <DialogTitle>{{
-                    event ? 'Edit Event' : 'Create Event'
-                }}</DialogTitle>
-                <DialogDescription>
-                    {{
-                        event
-                            ? 'Modify the details below.'
-                            : 'Add a new event to your schedule.'
-                    }}
-                </DialogDescription>
-            </DialogHeader>
+            <form @submit.prevent="handleSave">
+                <DialogHeader>
+                    <DialogTitle>{{
+                        event ? 'Edit Event' : 'Create Event'
+                    }}</DialogTitle>
+                    <DialogDescription>
+                        {{
+                            event
+                                ? 'Modify the details below.'
+                                : 'Add a new event to your schedule.'
+                        }}
+                    </DialogDescription>
+                </DialogHeader>
 
-            <div class="grid gap-4 py-4">
+                <div class="grid gap-4 py-4">
+                    <div class="grid gap-3">
+                        <Label for="class">Category</Label>
+                        <Select v-model="form.class">
+                            <SelectTrigger id="class">
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="PotA">Pot A</SelectItem>
+                                <SelectItem value="PotB">Pot B</SelectItem>
+                                <SelectItem value="PotC">Pot C</SelectItem>
+                                <SelectItem value="Ziek">Ziek</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                <div class="grid gap-3">
-                    <Label for="class">Category</Label>
-                    <Select v-model="form.class">
-                        <SelectTrigger id="class">
-                            <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="PotA">Pot A</SelectItem>
-                            <SelectItem value="PotB">Pot B</SelectItem>
-                            <SelectItem value="PotC">Pot C</SelectItem>
-                            <SelectItem value="Ziek">Ziek</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div class="grid gap-3">
+                        <Label for="start">Start</Label>
+                        <Input
+                            id="start"
+                            type="datetime-local"
+                            v-model="form.start"
+                        />
+                    </div>
+
+                    <div class="grid gap-3">
+                        <Label for="end">End</Label>
+                        <Input
+                            id="end"
+                            type="datetime-local"
+                            v-model="form.end"
+                        />
+                    </div>
                 </div>
 
-                <div class="grid gap-3">
-                    <Label for="start">Start</Label>
-                    <Input
-                        id="start"
-                        type="datetime-local"
-                        v-model="form.start"
-                    />
-                </div>
-
-                <div class="grid gap-3">
-                    <Label for="end">End</Label>
-                    <Input id="end" type="datetime-local" v-model="form.end" />
-                </div>
-            </div>
-
-            <DialogFooter>
-                <DialogClose as-child>
-                    <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button @click="handleSave">
-                    {{ event ? 'Save Changes' : 'Create Event' }}
-                </Button>
-            </DialogFooter>
+                <DialogFooter>
+                    <DialogClose as-child>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">
+                        {{ event ? 'Save Changes' : 'Create Event' }}
+                    </Button>
+                </DialogFooter>
+            </form>
         </DialogContent>
     </Dialog>
 </template>

@@ -1,50 +1,81 @@
 <script setup lang="ts">
 import EventDialog from '@/components/events/EventDialog.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { type BreadcrumbItem, CalenderEvent } from '@/types';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { VueCal } from 'vue-cal';
 import 'vue-cal/style';
 import { Button } from '@/components/ui/button';
+import { index, update } from '@/routes/events';
+import { store } from '@/actions/App/Http/Controllers/EventController';
+import { Alert, AlertTitle } from '@/components/ui/alert';
+import { CheckCircle2Icon } from 'lucide-vue-next';
 
-const events = [
-    {
-        title: 'Pot A: 3u',
-        start: '2025-12-26 14:00',
-        end: '2025-12-26 17:00',
-        class: 'PotA',
-    },
-];
+const props = defineProps<{
+    events: Array<CalenderEvent>;
+}>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Schedule',
-        href: '/schedule',
+        href: index.url(),
     },
 ];
 
-// reactive state for dialog
+const form = useForm({
+    class: '',
+    start: '',
+    end: '',
+});
+
 const isDialogOpen = ref(false);
-const selectedEvent = ref(null);
+const selectedEvent = ref<CalenderEvent | null>(null);
 
 function handleEventClick(event: any) {
     selectedEvent.value = event.event;
     isDialogOpen.value = true;
 }
+
+function onSave(formData: any) {
+    const action = selectedEvent.value?.id
+        ? update(selectedEvent.value.id)
+        : store();
+
+    form.transform(() => formData).submit(action, {
+        onSuccess: () => (isDialogOpen.value = false),
+    });
+}
 </script>
 
 <template>
     <Head title="Schedule" />
-    <EventDialog v-model:open="isDialogOpen" :event="selectedEvent" />
+    <EventDialog
+        v-model:open="isDialogOpen"
+        :event="selectedEvent"
+        @save="onSave"
+    />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <Button @click="isDialogOpen = true; selectedEvent=null;"> Create Event </Button>
+            <Button
+                @click="
+                    isDialogOpen = true;
+                    selectedEvent = null;
+                "
+            >
+                Create Event
+            </Button>
+            <div v-if="$page.props.flash.success">
+                <Alert class="bg-green-200">
+                    <CheckCircle2Icon />
+                    <AlertTitle>{{ $page.props.flash.success }}</AlertTitle>
+                </Alert>
+            </div>
             <vue-cal
-                :events="events"
+                :events="props.events"
                 events-on-month-view
                 @event-click="handleEventClick"
                 style="height: 100%"

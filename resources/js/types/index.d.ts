@@ -17,14 +17,17 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-export type AppPageProps<
-    T extends Record<string, unknown> = Record<string, unknown>,
-> = T & {
-    name: string;
-    quote: { message: string; author: string };
-    auth: Auth;
-    sidebarOpen: boolean;
-};
+export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> =
+    T & {
+        name: string;
+        quote: { message: string; author: string };
+        auth: Auth;
+        sidebarOpen: boolean;
+        flash: {
+            success: string | null;
+            error: string | null;
+        };
+    };
 
 export interface User {
     id: number;
@@ -34,6 +37,16 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+}
+
+export interface CalenderEvent {
+    id: number;
+    title: string;
+    class: string;
+    start: string;
+    end: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

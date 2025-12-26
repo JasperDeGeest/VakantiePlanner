@@ -16,7 +16,7 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-   Route::get('/events', [EventController::class, 'index'])->name('events.index');
+    Route::resource('events', EventController::class);
 });
 
 require __DIR__.'/settings.php';
