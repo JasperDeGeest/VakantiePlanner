@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import EventDialog from '@/components/events/EventDialog.vue';
-import { Dialog } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { VueCal } from 'vue-cal';
 import 'vue-cal/style';
+import { Button } from '@/components/ui/button';
 
 const events = [
     {
-        start: new Date(new Date().setHours(10, 30, 0, 0)),
-        end: new Date(new Date().setHours(11, 30, 0, 0)),
-        title: `Doctor Appt.`,
-        content: '<i class="icon mdi mdi-stethoscope"></i>',
-        contentFull:
-            'Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil inventore expedita veniam deleniti, labore corporis quas, aspernatur praesentium quia nisi, omnis quod autem.',
-        class: 'health',
+        title: 'Pot A: 3u',
+        start: '2025-12-26 14:00',
+        end: '2025-12-26 17:00',
+        class: 'PotA',
     },
 ];
 
@@ -32,23 +29,20 @@ const isDialogOpen = ref(false);
 const selectedEvent = ref(null);
 
 function handleEventClick(event: any) {
-    selectedEvent.value = event;
-    console.log(event);
+    selectedEvent.value = event.event;
     isDialogOpen.value = true;
 }
 </script>
 
 <template>
     <Head title="Schedule" />
-
-    <Dialog v-model:open="isDialogOpen">
-        <EventDialog v-model:open="isDialogOpen" :event="selectedEvent" />
-    </Dialog>
+    <EventDialog v-model:open="isDialogOpen" :event="selectedEvent" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
+            <Button @click="isDialogOpen = true; selectedEvent=null;"> Create Event </Button>
             <vue-cal
                 :events="events"
                 events-on-month-view
