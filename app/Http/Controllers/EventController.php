@@ -11,7 +11,7 @@ class EventController extends Controller
     public function index()
     {
         return Inertia::render('events/Index', [
-            'events' => Event::all()->map(function($event) {
+            'events' => auth()->user()->events->map(function ($event) {
                 $hours = $event->start->diffInHours($event->end);
 
                 return [
@@ -33,7 +33,7 @@ class EventController extends Controller
             'end' => 'required|date|after_or_equal:start',
         ]);
 
-        Event::create($validated);
+        auth()->user()->events()->create($validated);
 
         return redirect()->route('events.index')->with('success', 'Event created successfully.');
     }
@@ -46,7 +46,7 @@ class EventController extends Controller
             'end' => 'required|date|after_or_equal:start',
         ]);
 
-        $event->update($validated);
+        auth()->user()->events()->update($validated);
 
         return redirect()->route('events.index')->with('success', 'Event updated successfully.');
     }
