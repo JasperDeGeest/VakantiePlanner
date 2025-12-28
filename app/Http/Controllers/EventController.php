@@ -20,6 +20,7 @@ class EventController extends Controller
                     'start' => $event->start->format('Y-m-d H:i'),
                     'end'   => $event->end->format('Y-m-d H:i'),
                     'class' => $event->class,
+                    'duration' => $hours,
                 ];
             }),
         ]);
