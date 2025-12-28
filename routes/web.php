@@ -18,7 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('hours', HoursController::class);
+    Route::get('hours', [HoursController::class, 'index'])->name('hours.index');
+    Route::put('hours', [HoursController::class, 'update'])->name('hours.update');
 });
 
 require __DIR__.'/settings.php';

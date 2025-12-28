@@ -18,9 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->integer('totalAHours')->nullable();
-            $table->integer('totalBHours')->nullable();
-            $table->integer('totalCHours')->nullable();
+            $table->double('totalAHours', 6, 3)->nullable();
+            $table->double('totalBHours', 6, 3)->nullable();
+            $table->double('totalCHours', 6, 3)->nullable();
             $table->timestamps();
         });
 
