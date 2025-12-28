@@ -10,18 +10,47 @@ class EventController extends Controller
 {
     public function index()
     {
-        return Inertia::render('events/Index', [
-            'events' => auth()->user()->events->map(function ($event) {
-                $hours = $event->start->diffInHours($event->end);
+        $user = auth()->user();
 
+        // 1. Get all events for the user
+        $events = $user->events;
+
+        // 2. Calculate used hours per class
+        // We group by 'class' and sum the difference in hours
+        $usedHours = $events->groupBy('class')->map(function ($group) {
+            return $group->sum(fn($event) => $event->start->diffInHours($event->end, false));
+        });
+
+        return Inertia::render('events/Index', [
+            'events' => $events->map(function ($event) {
+                $hours = $event->start->diffInHours($event->end);
                 return [
                     'id'    => $event->id,
                     'title' => "{$event->class} {$hours}H",
                     'start' => $event->start->format('Y-m-d H:i'),
                     'end'   => $event->end->format('Y-m-d H:i'),
                     'class' => $event->class,
+                    'duration' => $hours,
                 ];
             }),
+            // 3. Pass the remaining hours to the frontend
+            'stats' => [
+                'potA' => [
+                    'total' => $user->totalAHours,
+                    'used' => $usedHours->get('PotA', 0),
+                    'remaining' => $user->totalAHours - $usedHours->get('PotA', 0),
+                ],
+                'potB' => [
+                    'total' => $user->totalBHours,
+                    'used' => $usedHours->get('PotB', 0),
+                    'remaining' => $user->totalBHours - $usedHours->get('PotB', 0),
+                ],
+                'potC' => [
+                    'total' => $user->totalCHours,
+                    'used' => $usedHours->get('PotC', 0),
+                    'remaining' => $user->totalCHours - $usedHours->get('PotC', 0),
+                ],
+            ]
         ]);
     }
 

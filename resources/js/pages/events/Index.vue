@@ -12,9 +12,11 @@ import { index, update } from '@/routes/events';
 import { store } from '@/actions/App/Http/Controllers/EventController';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle2Icon } from 'lucide-vue-next';
+import RemainingHours from '@/components/events/RemainingHours.vue';
 
 const props = defineProps<{
     events: Array<CalenderEvent>;
+    stats: Record<string, { total: number; remaining: number }>;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -61,6 +63,7 @@ function onSave(formData: any) {
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
+            <RemainingHours :stats="props.stats" />
             <Button
                 @click="
                     isDialogOpen = true;
