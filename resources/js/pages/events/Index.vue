@@ -6,6 +6,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { VueCal } from 'vue-cal';
 import 'vue-cal/style';
+import '../../../css/events.css';
 import { Button } from '@/components/ui/button';
 import { index, update } from '@/routes/events';
 import { store } from '@/actions/App/Http/Controllers/EventController';
