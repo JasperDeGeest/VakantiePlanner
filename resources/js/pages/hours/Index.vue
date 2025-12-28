@@ -39,6 +39,7 @@ const user = page.props.auth.user;
                         id="totalAHours"
                         name="totalAHours"
                         type="number"
+                        step="0.001"
                         :default-value="user.totalAHours"
                         required
                     />
@@ -51,6 +52,7 @@ const user = page.props.auth.user;
                         id="totalBHours"
                         name="totalBHours"
                         type="number"
+                        step="0.001"
                         :default-value="user.totalBHours"
                         required
                     />
@@ -63,6 +65,7 @@ const user = page.props.auth.user;
                         id="totalCHours"
                         name="totalCHours"
                         type="number"
+                        step="0.001"
                         :default-value="user.totalCHours"
                         required
                     />
