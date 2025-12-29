@@ -12,11 +12,8 @@ class EventController extends Controller
     {
         $user = auth()->user();
 
-        // 1. Get all events for the user
         $events = $user->events;
 
-        // 2. Calculate used hours per class
-        // We group by 'class' and sum the difference in hours
         $usedHours = $events->groupBy('class')->map(function ($group) {
             return $group->sum(fn($event) => $event->start->diffInHours($event->end, false));
         });
@@ -33,7 +30,7 @@ class EventController extends Controller
                     'duration' => $hours,
                 ];
             }),
-            // 3. Pass the remaining hours to the frontend
+
             'stats' => [
                 'potA' => [
                     'total' => $user->totalAHours,
@@ -83,5 +80,16 @@ class EventController extends Controller
         $event->update($validated);
 
         return redirect()->route('events.index')->with('success', 'Event updated successfully.');
+    }
+
+    public function destroy(Event $event)
+    {
+        if ($event->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $event->delete();
+
+        return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
     }
 }

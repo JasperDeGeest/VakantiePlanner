@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+    AlertTriangle,
+    Clock,
+    Trash2,
+} from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -25,9 +30,9 @@ const props = defineProps<{
     event: any | null;
 }>();
 
-const emit = defineEmits(['update:open', 'save']);
+const emit = defineEmits(['update:open', 'save', 'delete']);
 
-// Local state
+const isConfirmingDelete = ref(false);
 const form = ref({
     class: '',
     date: '', // YYYY-MM-DD
@@ -35,7 +40,7 @@ const form = ref({
     endTime: '', // HH:mm
 });
 
-// Generate 15-minute intervals for the select dropdowns
+
 const timeOptions = computed(() => {
     const times = [];
     for (let h = 0; h < 24; h++) {
@@ -51,6 +56,7 @@ const timeOptions = computed(() => {
 watch(
     () => props.open,
     (isOpen) => {
+        isConfirmingDelete.value = false;
         if (isOpen) {
             if (props.event) {
                 const fullStart = formatForPicker(props.event.start);
@@ -59,7 +65,6 @@ watch(
                 form.value = {
                     class: props.event.class,
                     date: fullStart.split('T')[0],
-                    // We ensure the time matches an interval or defaults to something valid
                     startTime: fullStart.split('T')[1].substring(0, 5),
                     endTime: fullEnd.split('T')[1].substring(0, 5),
                 };
@@ -73,10 +78,10 @@ watch(
             }
         }
     },
+    { immediate: true },
 );
 
 const handleSave = () => {
-    // Combine back to ISO-like string for backend
     const payload = {
         class: form.value.class,
         start: `${form.value.date}T${form.value.startTime}`,
@@ -85,6 +90,14 @@ const handleSave = () => {
 
     emit('save', payload);
     emit('update:open', false);
+};
+
+const handleDelete = () => {
+    if (!isConfirmingDelete.value) {
+        isConfirmingDelete.value = true;
+    } else {
+        emit('delete', props.event.id);
+    }
 };
 </script>
 
@@ -132,6 +145,9 @@ const handleSave = () => {
                             <Label>Start Time</Label>
                             <Select v-model="form.startTime">
                                 <SelectTrigger>
+                                    <Clock
+                                        class="mr-2 h-4 w-4 text-muted-foreground"
+                                    />
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -149,6 +165,9 @@ const handleSave = () => {
                             <Label>End Time</Label>
                             <Select v-model="form.endTime">
                                 <SelectTrigger>
+                                    <Clock
+                                        class="mr-2 h-4 w-4 text-muted-foreground"
+                                    />
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -165,17 +184,44 @@ const handleSave = () => {
                     </div>
                 </div>
 
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        type="button"
-                        @click="emit('update:open', false)"
-                    >
-                        Cancel
-                    </Button>
-                    <Button type="submit">
-                        {{ event ? 'Save Changes' : 'Create Event' }}
-                    </Button>
+                <DialogFooter
+                    class="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"
+                >
+                    <div v-if="event">
+                        <Button
+                            type="button"
+                            :variant="
+                                isConfirmingDelete ? 'destructive' : 'ghost'
+                            "
+                            class="w-full transition-all duration-200 sm:w-auto"
+                            @click="handleDelete"
+                        >
+                            <component
+                                :is="
+                                    isConfirmingDelete ? AlertTriangle : Trash2
+                                "
+                                class="mr-2 h-4 w-4"
+                            />
+                            {{
+                                isConfirmingDelete
+                                    ? 'Confirm Delete?'
+                                    : 'Delete'
+                            }}
+                        </Button>
+                    </div>
+                    <div v-else aria-hidden="true" />
+                    <div class="flex flex-col-reverse gap-2 sm:flex-row">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            @click="emit('update:open', false)"
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit" :disabled="isConfirmingDelete">
+                            {{ event ? 'Save Changes' : 'Create Event' }}
+                        </Button>
+                    </div>
                 </DialogFooter>
             </form>
         </DialogContent>

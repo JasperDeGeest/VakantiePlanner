@@ -8,8 +8,7 @@ import { VueCal } from 'vue-cal';
 import 'vue-cal/style';
 import '../../../css/events.css';
 import { Button } from '@/components/ui/button';
-import { index, update } from '@/routes/events';
-import { store } from '@/actions/App/Http/Controllers/EventController';
+import { index, update, destroy, store } from '@/routes/events';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle2Icon } from 'lucide-vue-next';
 import RemainingHours from '@/components/events/RemainingHours.vue';
@@ -63,6 +62,17 @@ function onSave(formData: any) {
         },
     });
 }
+
+function onDelete(id: number) {
+    const action = destroy({ event: id }).url;
+
+    form.delete(action, {
+        onSuccess: () => {
+            isDialogOpen.value = false;
+            selectedEvent.value = null;
+        },
+    });
+}
 </script>
 
 <template>
@@ -71,6 +81,7 @@ function onSave(formData: any) {
         v-model:open="isDialogOpen"
         :event="selectedEvent"
         @save="onSave"
+        @delete="onDelete"
     />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -87,7 +98,7 @@ function onSave(formData: any) {
                 Create Event
             </Button>
             <div v-if="$page.props.flash.success">
-                <Alert class="bg-green-200">
+                <Alert class="bg-green-200 dark:bg-green-900">
                     <CheckCircle2Icon />
                     <AlertTitle>{{ $page.props.flash.success }}</AlertTitle>
                 </Alert>
