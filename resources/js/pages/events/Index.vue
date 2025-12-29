@@ -13,6 +13,9 @@ import { store } from '@/actions/App/Http/Controllers/EventController';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle2Icon } from 'lucide-vue-next';
 import RemainingHours from '@/components/events/RemainingHours.vue';
+import { useAppearance } from '@/composables/useAppearance';
+
+const { appearance } = useAppearance();
 
 const props = defineProps<{
     events: Array<CalenderEvent>;
@@ -88,6 +91,7 @@ function onSave(formData: any) {
                 :time="false"
                 week-numbers
                 locale="en-us"
+                :class="appearance === 'dark' ? 'vuecal--dark' : ''"
             />
         </div>
     </AppLayout>

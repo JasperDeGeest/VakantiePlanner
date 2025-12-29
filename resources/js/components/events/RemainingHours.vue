@@ -27,7 +27,7 @@ const allHoursAreNull = computed(() => {
 </script>
 
 <template>
-    <Alert class="border-slate-200 bg-blue-50">
+    <Alert class="border-slate-200 bg-blue-50 dark:border-slate-700 dark:bg-blue-950">
         <component
             :is="allHoursAreNull ? AlertTriangleIcon : ActivityIcon"
             class="h-4 w-4"
@@ -41,14 +41,14 @@ const allHoursAreNull = computed(() => {
             <Link
                 v-if="allHoursAreNull"
                 :href="HoursController.index.url()"
-                class="flex items-center gap-1 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-800"
+                class="flex items-center gap-1 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
                 Set annual hours <ArrowRightIcon class="h-3 w-3" />
             </Link>
         </div>
 
         <AlertDescription>
-            <div v-if="allHoursAreNull" class="text-sm text-slate-600 italic">
+            <div v-if="allHoursAreNull" class="text-sm text-slate-600 italic dark:text-slate-400">
                 Your annual hour pots haven't been set for the current year.
             </div>
 
