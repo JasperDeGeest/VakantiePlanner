@@ -45,11 +45,22 @@ function handleEventClick(event: any) {
 
 function onSave(formData: any) {
     const action = selectedEvent.value?.id
-        ? update(selectedEvent.value.id)
+        ? update({ event: selectedEvent.value.id })
         : store();
 
-    form.transform(() => formData).submit(action, {
-        onSuccess: () => (isDialogOpen.value = false),
+    form.class = formData.class;
+    form.start = formData.start;
+    form.end = formData.end;
+
+    form.submit(action, {
+        onSuccess: () => {
+            isDialogOpen.value = false;
+            selectedEvent.value = null;
+            form.reset();
+        },
+        onError: (errors) => {
+            console.error('Submission failed:', errors);
+        },
     });
 }
 </script>

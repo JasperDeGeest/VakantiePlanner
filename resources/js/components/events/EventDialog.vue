@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
-    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -17,9 +17,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { formatForPicker } from '@/composables/useDateFormat';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
     open: boolean;
@@ -28,10 +27,25 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:open', 'save']);
 
+// Local state
 const form = ref({
     class: '',
-    start: '',
-    end: '',
+    date: '', // YYYY-MM-DD
+    startTime: '', // HH:mm
+    endTime: '', // HH:mm
+});
+
+// Generate 15-minute intervals for the select dropdowns
+const timeOptions = computed(() => {
+    const times = [];
+    for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 15) {
+            const hh = h.toString().padStart(2, '0');
+            const mm = m.toString().padStart(2, '0');
+            times.push(`${hh}:${mm}`);
+        }
+    }
+    return times;
 });
 
 watch(
@@ -39,18 +53,22 @@ watch(
     (isOpen) => {
         if (isOpen) {
             if (props.event) {
-                // edit
+                const fullStart = formatForPicker(props.event.start);
+                const fullEnd = formatForPicker(props.event.end);
+
                 form.value = {
                     class: props.event.class,
-                    start: formatForPicker(props.event.start),
-                    end: formatForPicker(props.event.end),
+                    date: fullStart.split('T')[0],
+                    // We ensure the time matches an interval or defaults to something valid
+                    startTime: fullStart.split('T')[1].substring(0, 5),
+                    endTime: fullEnd.split('T')[1].substring(0, 5),
                 };
             } else {
-                // create
                 form.value = {
                     class: '',
-                    start: '',
-                    end: '',
+                    date: '',
+                    startTime: '',
+                    endTime: '',
                 };
             }
         }
@@ -58,9 +76,14 @@ watch(
 );
 
 const handleSave = () => {
-    // TODO: Add validation as needed
-    //callback naar de parent
-    emit('save', { ...form.value });
+    // Combine back to ISO-like string for backend
+    const payload = {
+        class: form.value.class,
+        start: `${form.value.date}T${form.value.startTime}`,
+        end: `${form.value.date}T${form.value.endTime}`,
+    };
+
+    emit('save', payload);
     emit('update:open', false);
 };
 </script>
@@ -74,16 +97,12 @@ const handleSave = () => {
                         event ? 'Edit Event' : 'Create Event'
                     }}</DialogTitle>
                     <DialogDescription>
-                        {{
-                            event
-                                ? 'Modify the details below.'
-                                : 'Add a new event to your schedule.'
-                        }}
+                        Pick a day and select the 15-minute time intervals.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div class="grid gap-4 py-4">
-                    <div class="grid gap-3">
+                    <div class="grid gap-2">
                         <Label for="class">Category</Label>
                         <Select v-model="form.class">
                             <SelectTrigger id="class">
@@ -98,29 +117,62 @@ const handleSave = () => {
                         </Select>
                     </div>
 
-                    <div class="grid gap-3">
-                        <Label for="start">Start</Label>
+                    <div class="grid gap-2">
+                        <Label for="date">Date</Label>
                         <Input
-                            id="start"
-                            type="datetime-local"
-                            v-model="form.start"
+                            id="date"
+                            type="date"
+                            v-model="form.date"
+                            required
                         />
                     </div>
 
-                    <div class="grid gap-3">
-                        <Label for="end">End</Label>
-                        <Input
-                            id="end"
-                            type="datetime-local"
-                            v-model="form.end"
-                        />
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="grid gap-2">
+                            <Label>Start Time</Label>
+                            <Select v-model="form.startTime">
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem
+                                        v-for="t in timeOptions"
+                                        :key="t"
+                                        :value="t"
+                                    >
+                                        {{ t }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div class="grid gap-2">
+                            <Label>End Time</Label>
+                            <Select v-model="form.endTime">
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem
+                                        v-for="t in timeOptions"
+                                        :key="t"
+                                        :value="t"
+                                    >
+                                        {{ t }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
 
                 <DialogFooter>
-                    <DialogClose as-child>
-                        <Button variant="outline">Cancel</Button>
-                    </DialogClose>
+                    <Button
+                        variant="outline"
+                        type="button"
+                        @click="emit('update:open', false)"
+                    >
+                        Cancel
+                    </Button>
                     <Button type="submit">
                         {{ event ? 'Save Changes' : 'Create Event' }}
                     </Button>

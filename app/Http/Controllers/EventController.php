@@ -69,13 +69,18 @@ class EventController extends Controller
 
     public function update(Request $request, Event $event)
     {
+
+        if ($event->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'class' => 'required|string|max:255',
             'start' => 'required|date',
-            'end' => 'required|date|after_or_equal:start',
+            'end' => 'required|date|after:start',
         ]);
 
-        auth()->user()->events()->update($validated);
+        $event->update($validated);
 
         return redirect()->route('events.index')->with('success', 'Event updated successfully.');
     }
