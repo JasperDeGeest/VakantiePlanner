@@ -11,18 +11,13 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { index } from '@/routes/events';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Folder, LayoutGrid } from 'lucide-vue-next';
+import { Folder } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
     {
         title: 'schedule',
         href: '/events',
@@ -55,7 +50,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link :href="index()">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
