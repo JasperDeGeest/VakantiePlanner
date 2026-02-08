@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class EventController extends Controller
@@ -14,82 +15,99 @@ class EventController extends Controller
 
         $events = $user->events;
 
-        $usedHours = $events->groupBy('class')->map(function ($group) {
-            return $group->sum(fn($event) => $event->start->diffInHours($event->end, false));
-        });
+        $usedHours = $events
+            ->groupBy('class')
+            ->map(fn ($group) =>
+            $group->sum(fn ($event) =>
+            $event->start->diffInHours($event->end, false)
+            )
+            );
 
         return Inertia::render('events/Index', [
             'events' => $events->map(function ($event) {
                 $hours = $event->start->diffInHours($event->end);
+
                 return [
-                    'id'    => $event->id,
-                    'title' => "{$event->class} {$hours}H",
-                    'start' => $event->start->format('Y-m-d H:i'),
-                    'end'   => $event->end->format('Y-m-d H:i'),
-                    'class' => $event->class,
+                    'id'       => $event->id,
+                    'title'    => "{$event->class} {$hours}H",
+                    'start'    => $event->start->format('Y-m-d H:i'),
+                    'end'      => $event->end->format('Y-m-d H:i'),
+                    'class'    => $event->class,
                     'duration' => $hours,
                 ];
             }),
 
             'stats' => [
-                'potA' => [
-                    'total' => $user->totalAHours,
-                    'used' => $usedHours->get('PotA', 0),
-                    'remaining' => $user->totalAHours - $usedHours->get('PotA', 0),
-                ],
-                'potB' => [
-                    'total' => $user->totalBHours,
-                    'used' => $usedHours->get('PotB', 0),
-                    'remaining' => $user->totalBHours - $usedHours->get('PotB', 0),
-                ],
-                'potC' => [
-                    'total' => $user->totalCHours,
-                    'used' => $usedHours->get('PotC', 0),
-                    'remaining' => $user->totalCHours - $usedHours->get('PotC', 0),
-                ],
-            ]
+                'potA' => $this->potStats($user->totalAHours, $usedHours->get('PotA', 0)),
+                'potB' => $this->potStats($user->totalBHours, $usedHours->get('PotB', 0)),
+                'potC' => $this->potStats($user->totalCHours, $usedHours->get('PotC', 0)),
+            ],
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'class' => 'required|string|max:255',
-            'start' => 'required|date',
-            'end' => 'required|date|after_or_equal:start',
-        ]);
+        $validated = $this->validateEvent($request);
 
-        auth()->user()->events()->create($validated);
+        $request->user()->events()->create($validated);
 
-        return redirect()->route('events.index')->with('success', 'Event created successfully.');
+        return redirect()
+            ->route('events.index')
+            ->with('success', 'Evenement aangemaakt.');
     }
 
     public function update(Request $request, Event $event)
     {
+        abort_if($event->user_id !== auth()->id(), 403);
 
-        if ($event->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $validated = $request->validate([
-            'class' => 'required|string|max:255',
-            'start' => 'required|date',
-            'end' => 'required|date|after:start',
-        ]);
+        $validated = $this->validateEvent($request);
 
         $event->update($validated);
 
-        return redirect()->route('events.index')->with('success', 'Event updated successfully.');
+        return redirect()
+            ->route('events.index')
+            ->with('success', 'Evenement bijgewerkt.');
     }
 
     public function destroy(Event $event)
     {
-        if ($event->user_id !== auth()->id()) {
-            abort(403);
-        }
+        abort_if($event->user_id !== auth()->id(), 403);
 
         $event->delete();
 
-        return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
+        return redirect()
+            ->route('events.index')
+            ->with('success', 'Evenement verwijderd.');
+    }
+
+    private function validateEvent(Request $request): array
+    {
+        return $request->validate(
+            [
+                'class' => ['required', Rule::in(['PotA', 'PotB', 'PotC', 'Ziek'])],
+                'start' => ['required', 'date_format:Y-m-d\TH:i'],
+                'end'   => ['required', 'date_format:Y-m-d\TH:i', 'after:start'],
+            ],
+            [
+                'class.required' => 'Categorie is verplicht.',
+                'class.in' => 'Ongeldige categorie.',
+
+                'start.required' => 'Starttijd is verplicht.',
+                'start.date_format' => 'Starttijd is ongeldig.',
+
+                'end.required' => 'Eindtijd is verplicht.',
+                'end.date_format' => 'Eindtijd is ongeldig.',
+                'end.after' => 'Eindtijd moet na de starttijd liggen.',
+            ]
+        );
+    }
+
+    private function potStats(int $total, int $used): array
+    {
+        return [
+            'total' => $total,
+            'used' => $used,
+            'remaining' => $total - $used,
+        ];
     }
 }

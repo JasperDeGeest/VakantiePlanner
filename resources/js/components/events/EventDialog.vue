@@ -23,10 +23,12 @@ import { nl } from 'date-fns/locale';
 import { AlertTriangle, Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import { useAppearance } from '@/composables/useAppearance';
+import InputError from '@/components/InputError.vue';
 
 const props = defineProps<{
     open: boolean;
     event: any | null;
+    errors?: any;
 }>();
 
 const emit = defineEmits(['update:open', 'save', 'delete']);
@@ -77,7 +79,6 @@ const handleSave = () => {
     };
 
     emit('save', payload);
-    emit('update:open', false);
 };
 
 const handleDelete = () => {
@@ -106,7 +107,7 @@ const handleDelete = () => {
                 <div class="grid gap-4 py-4">
                     <div class="grid gap-2">
                         <Label for="class">Categorie</Label>
-                        <Select v-model="form.class" required>
+                        <Select v-model="form.class">
                             <SelectTrigger id="class">
                                 <SelectValue
                                     placeholder="Selecteer een categorie"
@@ -119,6 +120,7 @@ const handleDelete = () => {
                                 <SelectItem value="Ziek">Ziek</SelectItem>
                             </SelectContent>
                         </Select>
+                        <InputError :message="errors?.class" />
                     </div>
 
                     <div class="grid gap-2">
@@ -129,12 +131,11 @@ const handleDelete = () => {
                             :locale="nl"
                             :model-type="'yyyy-MM-dd'"
                             :time-config="{ enableTimePicker: false }"
-                            :input-attrs="{ required: true }"
                             :dark="isDark"
                         />
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 items-start gap-4">
                         <div class="grid gap-2">
                             <Label>Starttijd</Label>
                             <VueDatePicker
@@ -142,10 +143,10 @@ const handleDelete = () => {
                                 :locale="nl"
                                 :model-type="'HH:mm'"
                                 :time-picker="true"
-                                :input-attrs="{ required: true }"
                                 :time-config="{ minutesIncrement: 15 }"
                                 :dark="isDark"
                             />
+                            <InputError :message="errors?.start" />
                         </div>
                         <div class="grid gap-2">
                             <Label>Eindtijd</Label>
@@ -154,10 +155,10 @@ const handleDelete = () => {
                                 :locale="nl"
                                 :model-type="'HH:mm'"
                                 :time-picker="true"
-                                :input-attrs="{ required: true }"
                                 :time-config="{ minutesIncrement: 15 }"
                                 :dark="isDark"
                             />
+                            <InputError :message="errors?.end" />
                         </div>
                     </div>
                 </div>

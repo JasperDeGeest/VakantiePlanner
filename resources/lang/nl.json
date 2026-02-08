@@ -10,5 +10,8 @@
     "Whoops!": "Oeps!",
     "Hello!": "Hallo!",
     "Regards,": "Met vriendelijke groet,",
-    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Als u problemen heeft met het klikken op de \":actionText\" knop, kopieer en plak de URL hieronder\nin uw webbrowser:"
+    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Als u problemen heeft met het klikken op de \":actionText\" knop, kopieer en plak de URL hieronder\nin uw webbrowser:",
+    "Event created successfully.": "Evenement succesvol aangemaakt.",
+    "Event updated successfully.": "Evenement succesvol bijgewerkt.",
+    "Event deleted successfully.": "Evenement succesvol verwijderd."
 }
