@@ -19,12 +19,12 @@ import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Schedule',
+        title: 'Schema',
         href: '/events',
         icon: Folder,
     },
     {
-        title: 'Edit Total Hours',
+        title: 'Totaal Uren Bewerken',
         href: '/hours',
         icon: Folder,
     }

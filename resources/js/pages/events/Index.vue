@@ -14,7 +14,7 @@ import { CheckCircle2Icon } from 'lucide-vue-next';
 import RemainingHours from '@/components/events/RemainingHours.vue';
 import { useAppearance } from '@/composables/useAppearance';
 
-const { appearance } = useAppearance();
+const { isDark } = useAppearance();
 
 const props = defineProps<{
     events: Array<CalenderEvent>;
@@ -23,7 +23,7 @@ const props = defineProps<{
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Schedule',
+        title: 'Schema',
         href: index.url(),
     },
 ];
@@ -76,7 +76,7 @@ function onDelete(id: number) {
 </script>
 
 <template>
-    <Head title="Schedule" />
+    <Head title="Schema" />
     <EventDialog
         v-model:open="isDialogOpen"
         :event="selectedEvent"
@@ -95,7 +95,7 @@ function onDelete(id: number) {
                     selectedEvent = null;
                 "
             >
-                Create Event
+                Evenement aanmaken
             </Button>
             <div v-if="$page.props.flash.success">
                 <Alert class="bg-green-200 dark:bg-green-900">
@@ -112,8 +112,8 @@ function onDelete(id: number) {
                 :views-bar="false"
                 :time="false"
                 week-numbers
-                locale="en-us"
-                :class="appearance === 'dark' ? 'vuecal--dark' : ''"
+                locale="nl"
+                :class="isDark ? 'vuecal--dark' : ''"
             />
         </div>
     </AppLayout>

@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import {
-    AlertTriangle,
-    Clock,
-    Trash2,
-} from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -13,7 +8,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -23,7 +17,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { formatForPicker } from '@/composables/useDateFormat';
-import { computed, ref, watch } from 'vue';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+import { nl } from 'date-fns/locale';
+import { AlertTriangle, Trash2 } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import { useAppearance } from '@/composables/useAppearance';
 
 const props = defineProps<{
     open: boolean;
@@ -32,25 +31,14 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:open', 'save', 'delete']);
 
+const { isDark } = useAppearance();
+
 const isConfirmingDelete = ref(false);
 const form = ref({
     class: '',
     date: '', // YYYY-MM-DD
     startTime: '', // HH:mm
     endTime: '', // HH:mm
-});
-
-
-const timeOptions = computed(() => {
-    const times = [];
-    for (let h = 0; h < 24; h++) {
-        for (let m = 0; m < 60; m += 15) {
-            const hh = h.toString().padStart(2, '0');
-            const mm = m.toString().padStart(2, '0');
-            times.push(`${hh}:${mm}`);
-        }
-    }
-    return times;
 });
 
 watch(
@@ -103,23 +91,26 @@ const handleDelete = () => {
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent class="sm:max-w-[425px]">
+        <DialogContent>
             <form @submit.prevent="handleSave">
                 <DialogHeader>
                     <DialogTitle>{{
-                        event ? 'Edit Event' : 'Create Event'
+                        event ? 'Evenement bewerken' : 'Evenement aanmaken'
                     }}</DialogTitle>
                     <DialogDescription>
-                        Pick a day and select the 15-minute time intervals.
+                        Kies een dag en selecteer de 15-minuten
+                        tijdsintervallen.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div class="grid gap-4 py-4">
                     <div class="grid gap-2">
-                        <Label for="class">Category</Label>
-                        <Select v-model="form.class">
+                        <Label for="class">Categorie</Label>
+                        <Select v-model="form.class" required>
                             <SelectTrigger id="class">
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue
+                                    placeholder="Selecteer een categorie"
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="PotA">Pot A</SelectItem>
@@ -131,55 +122,42 @@ const handleDelete = () => {
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="date">Date</Label>
-                        <Input
+                        <Label for="date">Datum</Label>
+                        <VueDatePicker
                             id="date"
-                            type="date"
                             v-model="form.date"
-                            required
+                            :locale="nl"
+                            :model-type="'yyyy-MM-dd'"
+                            :time-config="{ enableTimePicker: false }"
+                            :input-attrs="{ required: true }"
+                            :dark="isDark"
                         />
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-2">
-                            <Label>Start Time</Label>
-                            <Select v-model="form.startTime">
-                                <SelectTrigger>
-                                    <Clock
-                                        class="mr-2 h-4 w-4 text-muted-foreground"
-                                    />
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem
-                                        v-for="t in timeOptions"
-                                        :key="t"
-                                        :value="t"
-                                    >
-                                        {{ t }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Label>Starttijd</Label>
+                            <VueDatePicker
+                                v-model="form.startTime"
+                                :locale="nl"
+                                :model-type="'HH:mm'"
+                                :time-picker="true"
+                                :input-attrs="{ required: true }"
+                                :time-config="{ minutesIncrement: 15 }"
+                                :dark="isDark"
+                            />
                         </div>
                         <div class="grid gap-2">
-                            <Label>End Time</Label>
-                            <Select v-model="form.endTime">
-                                <SelectTrigger>
-                                    <Clock
-                                        class="mr-2 h-4 w-4 text-muted-foreground"
-                                    />
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem
-                                        v-for="t in timeOptions"
-                                        :key="t"
-                                        :value="t"
-                                    >
-                                        {{ t }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Label>Eindtijd</Label>
+                            <VueDatePicker
+                                v-model="form.endTime"
+                                :locale="nl"
+                                :model-type="'HH:mm'"
+                                :time-picker="true"
+                                :input-attrs="{ required: true }"
+                                :time-config="{ minutesIncrement: 15 }"
+                                :dark="isDark"
+                            />
                         </div>
                     </div>
                 </div>
@@ -204,8 +182,8 @@ const handleDelete = () => {
                             />
                             {{
                                 isConfirmingDelete
-                                    ? 'Confirm Delete?'
-                                    : 'Delete'
+                                    ? 'Verwijderen bevestigen?'
+                                    : 'Verwijderen'
                             }}
                         </Button>
                     </div>
@@ -216,10 +194,14 @@ const handleDelete = () => {
                             type="button"
                             @click="emit('update:open', false)"
                         >
-                            Cancel
+                            Annuleren
                         </Button>
                         <Button type="submit" :disabled="isConfirmingDelete">
-                            {{ event ? 'Save Changes' : 'Create Event' }}
+                            {{
+                                event
+                                    ? 'Wijzigingen opslaan'
+                                    : 'Evenement aanmaken'
+                            }}
                         </Button>
                     </div>
                 </DialogFooter>

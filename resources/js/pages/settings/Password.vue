@@ -14,7 +14,7 @@ import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Password settings',
+        title: 'Wachtwoordinstellingen',
         href: edit().url,
     },
 ];
@@ -22,13 +22,13 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Password settings" />
+        <Head title="Wachtwoordinstellingen" />
 
         <SettingsLayout>
             <div class="space-y-6">
                 <HeadingSmall
-                    title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure"
+                    title="Wachtwoord bijwerken"
+                    description="Zorg ervoor dat uw account een lang, willekeurig wachtwoord gebruikt om veilig te blijven"
                 />
 
                 <Form
@@ -46,34 +46,34 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     v-slot="{ errors, processing, recentlySuccessful }"
                 >
                     <div class="grid gap-2">
-                        <Label for="current_password">Current password</Label>
+                        <Label for="current_password">Huidig wachtwoord</Label>
                         <Input
                             id="current_password"
                             name="current_password"
                             type="password"
                             class="mt-1 block w-full"
                             autocomplete="current-password"
-                            placeholder="Current password"
+                            placeholder="Huidig wachtwoord"
                         />
                         <InputError :message="errors.current_password" />
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="password">New password</Label>
+                        <Label for="password">Nieuw wachtwoord</Label>
                         <Input
                             id="password"
                             name="password"
                             type="password"
                             class="mt-1 block w-full"
                             autocomplete="new-password"
-                            placeholder="New password"
+                            placeholder="Nieuw wachtwoord"
                         />
                         <InputError :message="errors.password" />
                     </div>
 
                     <div class="grid gap-2">
                         <Label for="password_confirmation"
-                            >Confirm password</Label
+                            >Bevestig wachtwoord</Label
                         >
                         <Input
                             id="password_confirmation"
@@ -81,7 +81,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             type="password"
                             class="mt-1 block w-full"
                             autocomplete="new-password"
-                            placeholder="Confirm password"
+                            placeholder="Bevestig wachtwoord"
                         />
                         <InputError :message="errors.password_confirmation" />
                     </div>
@@ -90,7 +90,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         <Button
                             :disabled="processing"
                             data-test="update-password-button"
-                            >Save password</Button
+                            >Wachtwoord opslaan</Button
                         >
 
                         <Transition
@@ -103,7 +103,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                 v-show="recentlySuccessful"
                                 class="text-sm text-neutral-600"
                             >
-                                Saved.
+                                Opgeslagen.
                             </p>
                         </Transition>
                     </div>

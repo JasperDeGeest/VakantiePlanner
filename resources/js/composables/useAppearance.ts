@@ -48,10 +48,19 @@ const getStoredAppearance = () => {
     return localStorage.getItem('appearance') as Appearance | null;
 };
 
+const appearance = ref<Appearance>('system');
+
+const isDark = ref(false);
+
 const handleSystemThemeChange = () => {
     const currentAppearance = getStoredAppearance();
 
     updateTheme(currentAppearance || 'system');
+
+    // Update isDark
+    if (typeof window !== 'undefined') {
+        isDark.value = document.documentElement.classList.contains('dark');
+    }
 };
 
 export function initializeTheme() {
@@ -67,8 +76,6 @@ export function initializeTheme() {
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 
-const appearance = ref<Appearance>('system');
-
 export function useAppearance() {
     onMounted(() => {
         const savedAppearance = localStorage.getItem(
@@ -77,6 +84,11 @@ export function useAppearance() {
 
         if (savedAppearance) {
             appearance.value = savedAppearance;
+        }
+
+        // Initialize isDark based on current class
+        if (typeof window !== 'undefined') {
+            isDark.value = document.documentElement.classList.contains('dark');
         }
     });
 
@@ -90,10 +102,16 @@ export function useAppearance() {
         setCookie('appearance', value);
 
         updateTheme(value);
+
+        // Update isDark after theme update
+        if (typeof window !== 'undefined') {
+            isDark.value = document.documentElement.classList.contains('dark');
+        }
     }
 
     return {
         appearance,
         updateAppearance,
+        isDark,
     };
 }

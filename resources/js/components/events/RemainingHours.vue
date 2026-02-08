@@ -35,7 +35,7 @@ const allHoursAreNull = computed(() => {
 
         <div class="flex w-full items-center justify-between">
             <AlertTitle class="mb-2 font-bold"
-                >Remaining Hours Overview</AlertTitle
+                >Overzicht resterende uren</AlertTitle
             >
 
             <Link
@@ -43,13 +43,13 @@ const allHoursAreNull = computed(() => {
                 :href="HoursController.index.url()"
                 class="flex items-center gap-1 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
-                Set annual hours <ArrowRightIcon class="h-3 w-3" />
+                Jaarlijkse uren instellen <ArrowRightIcon class="h-3 w-3" />
             </Link>
         </div>
 
         <AlertDescription>
             <div v-if="allHoursAreNull" class="text-sm text-slate-600 italic dark:text-slate-400">
-                Your annual hour pots haven't been set for the current year.
+                Uw jaarlijkse uren zijn nog niet ingesteld voor het huidige jaar.
             </div>
 
             <div v-else class="flex flex-wrap gap-x-8 gap-y-4">
@@ -65,7 +65,7 @@ const allHoursAreNull = computed(() => {
                         <span
                             class="text-xl font-bold text-foreground tabular-nums"
                         >
-                            {{ Number(data.remaining).toFixed(2) }}H
+                            {{ Number(data.remaining) }}H
                         </span>
                         <span class="text-[10px] text-foreground">
                             / {{ data.total }}H

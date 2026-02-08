@@ -9,7 +9,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Form, Head, usePage } from '@inertiajs/vue3'; // Added usePage
 import HoursController from '@/actions/App/Http/Controllers/HoursController';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Hours', href: '/hours' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Uren', href: '/hours' }];
 
 // Get the user data from the global page props
 const page = usePage();
@@ -17,15 +17,15 @@ const user = page.props.auth.user;
 </script>
 
 <template>
-    <Head title="Hours" />
+    <Head title="Uren" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <Heading
-                title="Total hours"
-                description="Manage your total hours per type for the year."
+                title="Totaal uren"
+                description="Beheer uw totaal aantal uren per type voor het jaar."
             />
 
             <Form
@@ -73,7 +73,7 @@ const user = page.props.auth.user;
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <Button :disabled="processing">Save</Button>
+                    <Button :disabled="processing">Opslaan</Button>
 
                     <Transition
                         enter-active-class="transition ease-in-out"
@@ -85,7 +85,7 @@ const user = page.props.auth.user;
                             v-show="recentlySuccessful"
                             class="text-sm text-neutral-600"
                         >
-                            Saved.
+                            Opgeslagen.
                         </p>
                     </Transition>
                 </div>
